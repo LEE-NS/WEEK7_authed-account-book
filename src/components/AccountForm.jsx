@@ -99,7 +99,8 @@ const StFormInner = styled.div`
   height: 55px;
   margin: 0 auto;
   padding: 30px 20px;
-  border-radius: 17px;
+  border-radius: 10px;
+  box-shadow: 0px 1px 10px 1px #00000022;
   background-color: #fefefe;
 `;
 const StUl = styled.ul`

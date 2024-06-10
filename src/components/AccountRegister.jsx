@@ -2,6 +2,12 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
 const AccountRegister = () => {
+  const navigate = useNavigate();
+
+  const goHome = () => {
+    navigate("/login");
+  };
+
   return (
     <StLayout>
       <StForm>
@@ -17,15 +23,17 @@ const AccountRegister = () => {
           </StInputWrap>
           <StInputWrap>
             <StLabel>비밀번호</StLabel>
-            <StInput type="text" placeholder="아이디" />
+            <StInput type="text" placeholder="영문, 숫자 혼합 6자리 이상" />
           </StInputWrap>
           <StInputWrap>
             <StLabel>비밀번호 확인</StLabel>
-            <StInput type="text" placeholder="아이디" />
+            <StInput type="text" placeholder="비밀번호 확인" />
           </StInputWrap>
         </StInputOuterWrap>
-        <StButton>가입하기</StButton>
-        <StButtonOutline>취소</StButtonOutline>
+        <StButtonWrap>
+          <StButton>가입하기</StButton>
+          <StButtonOutline onClick={goHome}>취소</StButtonOutline>
+        </StButtonWrap>
       </StForm>
     </StLayout>
   );
@@ -48,7 +56,6 @@ const StLayout = styled.div`
 const StH1 = styled.h1`
   font-size: 1.5em;
   font-weight: 900;
-  margin-bottom: 10px;
 `;
 
 const StForm = styled.form`
@@ -57,11 +64,12 @@ const StForm = styled.form`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 35px;
   margin: 0 auto;
 `;
 
 const StInputOuterWrap = styled.div`
+  width: 60%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -72,6 +80,11 @@ const StInputOuterWrap = styled.div`
 
 const StInputWrap = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 `;
 
 const StInput = styled.input`
@@ -79,11 +92,15 @@ const StInput = styled.input`
   height: 2rem;
   font-size: 1rem;
   text-indent: 5px;
-  padding: 3px 0;
+  padding: 3px 6px;
+
   border: 1px solid #a8a8a8;
   border-radius: 10px;
-  outline: none;
   background-color: transparent;
+
+  &:focus {
+    outline: 1px solid #acacac;
+  }
 `;
 
 const StButton = styled.button`
@@ -125,6 +142,15 @@ const StButtonOutline = styled.button`
 `;
 
 const StLabel = styled.label`
-  font-size: 1em;
+  font-size: 0.9em;
   align-self: baseline;
+`;
+
+const StButtonWrap = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 `;
