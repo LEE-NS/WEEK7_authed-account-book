@@ -1,12 +1,39 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useRef } from "react";
 
 const AccountRegister = () => {
   const navigate = useNavigate();
 
+  const userName = useRef("");
+  const userId = useRef("");
+  const userPw = useRef("");
+  const userPwConfirm = useRef("");
+
   const goHome = () => {
     navigate("/login");
   };
+
+  // 입력된 사용자의 정보를 서버에 추가시킨다(POST)
+  // 아이디는 중복될 수 없게 한다.(GET, 회원 정보 확인)
+
+  // const fetchRegister = async () => {
+
+  // }
+
+  // const addRegister = async (userName, userId, userPw) => {
+
+  // }
+
+  // const {data, isPending, isError} = useQuery({
+  //   queryKey: ["register"],
+  //   queryFn: fetchRegister,
+  // })
+
+  // const mutation = useMutation({
+  //   mutationFn: addRegister,
+  // });
 
   return (
     <StLayout>
@@ -15,19 +42,27 @@ const AccountRegister = () => {
         <StInputOuterWrap>
           <StInputWrap>
             <StLabel>이름</StLabel>
-            <StInput type="text" placeholder="이름" />
+            <StInput type="text" placeholder="이름" ref={userName} />
           </StInputWrap>
           <StInputWrap>
             <StLabel>아이디</StLabel>
-            <StInput type="text" placeholder="아이디" />
+            <StInput type="text" placeholder="아이디" ref={userId} />
           </StInputWrap>
           <StInputWrap>
             <StLabel>비밀번호</StLabel>
-            <StInput type="text" placeholder="영문, 숫자 혼합 6자리 이상" />
+            <StInput
+              type="text"
+              placeholder="영문, 숫자 혼합 6자리 이상"
+              ref={userPw}
+            />
           </StInputWrap>
           <StInputWrap>
             <StLabel>비밀번호 확인</StLabel>
-            <StInput type="text" placeholder="비밀번호 확인" />
+            <StInput
+              type="text"
+              placeholder="비밀번호 확인"
+              ref={userPwConfirm}
+            />
           </StInputWrap>
         </StInputOuterWrap>
         <StButtonWrap>
