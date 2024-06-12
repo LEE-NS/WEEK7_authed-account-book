@@ -2,29 +2,68 @@ import styled from "styled-components";
 import PersonIcon from "@mui/icons-material/Person";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import { useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { apiUrl } from "../axios/api";
 
 const AccountLogin = () => {
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const goRegister = () => {
-    navigate("/register");
+    navigate("register");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await apiUrl.post("login", {
+        id,
+        password,
+      });
+      const data = response.data;
+      if (data.success) {
+        login(data.accessToken);
+        navigate("../");
+      } else {
+        alert("로그인에 실패했습니다. 다시 시도해주세요.");
+      }
+    } catch (error) {
+      console.error("Login Error :", error);
+      alert(
+        "아이디 또는 비밀번호를 잘못 입력하셨거나 해당 계정이 존재하지 않습니다."
+      );
+      console.log(password, id);
+    }
   };
 
   return (
     <StLayout>
-      <StForm>
+      <StForm onSubmit={handleSubmit}>
         <StH1>로그인</StH1>
         <StInputWrap>
           <PersonIcon sx={{ fontSize: "1rem" }} />
-          <StInput type="text" placeholder="아이디" />
+          <StInput
+            type="text"
+            placeholder="아이디"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+          />
         </StInputWrap>
         <StInputWrap>
           <VpnKeyIcon sx={{ fontSize: "1rem" }} />
-          <StInput type="password" placeholder="비밀번호" />
+          <StInput
+            type="password"
+            placeholder="비밀번호"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </StInputWrap>
         <StButton>로그인</StButton>
         <StP>
-          아직 회원이 아니신가요? <StSpan onClick={goRegister}>회원가입</StSpan>
+          아직 계정이 없으신가요? <StSpan onClick={goRegister}>회원가입</StSpan>
         </StP>
       </StForm>
     </StLayout>
@@ -92,10 +131,10 @@ const StButton = styled.button`
   cursor: pointer;
   transition: background-color 0.2s;
 
-  background-color: #9fc497;
+  background-color: #99bc85;
 
   &:hover {
-    background-color: #669e5a;
+    background-color: #bfd8af;
     transition: background-color 0.2s;
   }
 `;
