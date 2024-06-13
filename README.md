@@ -14,6 +14,10 @@
 
 LEE-NS
 
+## Referenced by
+
+json-server : [레포지토리 바로가기](https://github.com/LEE-NS/WEEK7_json-server-deploy.git)
+
 ## Work from
 
 스파르타코딩교육 내일배움캠프 React 5기 12조 7주차 개인 프로젝트
