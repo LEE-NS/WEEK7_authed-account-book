@@ -1,70 +1,102 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useState } from "react";
+import { register } from "../lib/auth/api";
 
 const AccountRegister = () => {
   const navigate = useNavigate();
 
-  const userName = useRef("");
-  const userId = useRef("");
-  const userPw = useRef("");
-  const userPwConfirm = useRef("");
+  const [nickname, setNickname] = useState("");
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
+  const [pwConfirm, setPwConfirm] = useState("");
+  const [isValid, setIsValid] = useState("none");
 
-  const goHome = () => {
+  const goHome = (e) => {
+    e.preventDefault();
     navigate("/login");
   };
 
-  // 입력된 사용자의 정보를 서버에 추가시킨다(POST)
-  // 아이디는 중복될 수 없게 한다.(GET, 회원 정보 확인)
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (nickname.trim().length < 1 || nickname.trim().length > 10) {
+      setIsValid("nicknameErr");
+      return;
+    }
+    if (id.trim().length < 4 || id.trim().length > 10) {
+      setIsValid("idErr");
+      return;
+    }
+    if (password.trim().length < 4 || password.trim().length > 15) {
+      setIsValid("pwErr");
+      return;
+    }
+    if (pwConfirm !== password) {
+      setIsValid("pwIncorrect");
+      return;
+    }
 
-  // const fetchRegister = async () => {
+    setIsValid("none");
 
-  // }
-
-  // const addRegister = async (userName, userId, userPw) => {
-
-  // }
-
-  // const {data, isPending, isError} = useQuery({
-  //   queryKey: ["register"],
-  //   queryFn: fetchRegister,
-  // })
-
-  // const mutation = useMutation({
-  //   mutationFn: addRegister,
-  // });
+    if (confirm("가입을 완료하시겠습니까?")) {
+      const data = await register({ nickname, id, password });
+      if (data?.success) {
+        alert("가입이 완료되었습니다.");
+        navigate("/login");
+      }
+    }
+  };
 
   return (
     <StLayout>
-      <StForm>
+      <StForm onSubmit={handleRegister}>
         <StH1>회원가입</StH1>
         <StInputOuterWrap>
           <StInputWrap>
-            <StLabel>이름</StLabel>
-            <StInput type="text" placeholder="이름" ref={userName} />
+            <StLabel>닉네임</StLabel>
+            <StInput
+              type="text"
+              placeholder="1자리 이상, 10자리 이하"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+            />
           </StInputWrap>
           <StInputWrap>
             <StLabel>아이디</StLabel>
-            <StInput type="text" placeholder="아이디" ref={userId} />
+            <StInput
+              type="text"
+              placeholder="4자리 이상, 10자리 이하"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+            />
           </StInputWrap>
           <StInputWrap>
             <StLabel>비밀번호</StLabel>
             <StInput
-              type="text"
-              placeholder="영문, 숫자 혼합 6자리 이상"
-              ref={userPw}
+              type="password"
+              placeholder="4자리 이상, 15자리 이하"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </StInputWrap>
           <StInputWrap>
             <StLabel>비밀번호 확인</StLabel>
             <StInput
-              type="text"
+              type="password"
               placeholder="비밀번호 확인"
-              ref={userPwConfirm}
+              value={pwConfirm}
+              onChange={(e) => setPwConfirm(e.target.value)}
             />
           </StInputWrap>
         </StInputOuterWrap>
+        <StValidCheck $isValid={isValid}>
+          <span>닉네임은 1 ~ 10 자리여야 합니다.</span>
+          <span>아이디는 4 ~ 10 자리여야 합니다.</span>
+          <span>비밀번호는 4 ~ 15 자리여야 합니다.</span>
+          <span>
+            비밀번호 확인란이 비밀번호와 일치하지 않습니다. 다시 입력해주세요
+          </span>
+        </StValidCheck>
         <StButtonWrap>
           <StButton>가입하기</StButton>
           <StButtonOutline onClick={goHome}>취소</StButtonOutline>
@@ -76,13 +108,31 @@ const AccountRegister = () => {
 
 export default AccountRegister;
 
+const StValidCheck = styled.p`
+  display: ${(props) => (props.$isValid === "none" ? "none" : "block")};
+  font-size: 0.8em;
+  color: red;
+
+  span:nth-child(1) {
+    display: ${(props) =>
+      props.$isValid === "nicknameErr" ? "block" : "none"};
+  }
+  span:nth-child(2) {
+    display: ${(props) => (props.$isValid === "idErr" ? "block" : "none")};
+  }
+  span:nth-child(3) {
+    display: ${(props) => (props.$isValid === "pwErr" ? "block" : "none")};
+  }
+  span:nth-child(4) {
+    display: ${(props) =>
+      props.$isValid === "pwIncorrect" ? "block" : "none"};
+  }
+`;
+
 const StLayout = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
   width: 500px;
-  height: 600px;
-  margin: -300px 0 0 -250px;
+  padding: 80px 15px;
+  margin: 0 auto;
   border-radius: 10px;
   box-shadow: 0px 1px 10px 1px #00000022;
   background-color: #fefefe;
@@ -134,7 +184,7 @@ const StInput = styled.input`
   background-color: transparent;
 
   &:focus {
-    outline: 1px solid #acacac;
+    outline: none;
   }
 `;
 

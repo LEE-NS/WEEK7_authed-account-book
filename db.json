@@ -1,11 +1,36 @@
 {
   "expenses": [
     {
-      "id": "25143e72-16e2-22a7-a9c2-47358580e2f8",
-      "date": "2024-06-02",
-      "money": 1055000,
-      "category": "여행",
-      "job": "일본여행"
+      "date": "2024-06-01",
+      "money": 20000000,
+      "category": "식비",
+      "job": "벌크업피자sss",
+      "createdBy": "admin",
+      "id": "1f95"
+    },
+    {
+      "id": "6049",
+      "date": "2024-06-01",
+      "money": "70000000",
+      "category": "식비",
+      "job": "벌크업햄버거",
+      "createdBy": "admin"
+    },
+    {
+      "id": "8948",
+      "date": "2024-04-01",
+      "money": "1000",
+      "category": "교통비",
+      "job": "비행기",
+      "createdBy": "admin"
+    },
+    {
+      "date": "2024-11-25",
+      "money": 20000,
+      "category": "교통비",
+      "job": "지하철",
+      "createdBy": "admin",
+      "id": "423b"
     }
   ]
 }

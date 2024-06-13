@@ -1,11 +1,27 @@
 import React from "react";
 import styled from "styled-components";
 import AccountItem from "./AccountItem";
+import { useQuery } from "@tanstack/react-query";
+import { getExpenses } from "../lib/expenses/expenses";
 import { useSelector } from "react-redux";
+import Loading from "./Loading";
 
 const AccountSection = () => {
-  const expenses = useSelector((state) => state.expenses);
+  // const expenses = useSelector((state) => state.expenses);
   const month = useSelector((state) => state.month);
+
+  const {
+    data: expenses = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["expenses"],
+    queryFn: getExpenses,
+  });
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   //선택된 달과 일치하는 item만 filter로 가져온다.
   const filteredMonthItems = expenses.filter(

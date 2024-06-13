@@ -1,32 +1,62 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import { removeExpenses, updateExpenses } from "../redux/slices/expensesSlice";
+import {
+  deleteExpenses,
+  getSingleExpense,
+  putExpenses,
+} from "../lib/expenses/expenses";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Loading from "../components/Loading";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
 const Detail = () => {
-  const dispatch = useDispatch();
-  const expenses = useSelector((state) => state.expenses);
-
-  const param = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-
-  const foundItem = expenses.find((item) => item.id === param.id);
-  const foundItemIndex = expenses.indexOf(foundItem);
 
   const date = useRef("");
   const money = useRef(null);
   const category = useRef("");
   const job = useRef("");
+  const createdBy = useRef("");
+
+  const queryClient = useQueryClient();
+
+  const {
+    data: singleExpense,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["expenses", id],
+    queryFn: getSingleExpense,
+  });
 
   useEffect(() => {
-    date.current.value = foundItem.date;
-    money.current.value = foundItem.money;
-    category.current.value = foundItem.category;
-    job.current.value = foundItem.job;
-  }, []);
+    if (singleExpense) {
+      date.current.value = singleExpense.date;
+      money.current.value = singleExpense.money;
+      category.current.value = singleExpense.category;
+      job.current.value = singleExpense.job;
+      createdBy.current = singleExpense.createdBy;
+    }
+  }, [singleExpense]);
+
+  const mutationUpdate = useMutation({
+    mutationFn: putExpenses,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["expenses"]);
+      navigate("../");
+    },
+  });
+
+  const mutationDelete = useMutation({
+    mutationFn: deleteExpenses,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["expenses"]);
+      navigate("../");
+    },
+  });
 
   const updateItem = (e) => {
     e.preventDefault();
@@ -51,24 +81,22 @@ const Detail = () => {
     if (!confirmed) return;
 
     const updatedItem = {
-      id: foundItem.id,
+      id: id,
       date: date.current.value,
-      money: money.current.value.replace(
-        /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g,
-        ","
-      ),
+      money: +money.current.value,
       category: category.current.value,
       job: job.current.value,
+      createdBy: createdBy.current,
     };
-    dispatch(updateExpenses({ foundItemIndex, updatedItem }));
-    navigate("../");
+
+    mutationUpdate.mutate(updatedItem);
   };
 
   const removeItem = (e) => {
     e.preventDefault();
     const confirmed = confirm("삭제하시겠습니까?");
     if (!confirmed) return;
-    dispatch(removeExpenses(foundItemIndex));
+    mutationDelete.mutate(id);
     navigate("../");
   };
 
@@ -76,6 +104,15 @@ const Detail = () => {
     e.preventDefault();
     navigate("../");
   };
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    alert("해당 항목을 찾지 못했습니다.");
+    navigate("../");
+  }
 
   return (
     <StFormWrap>

@@ -1,61 +1,97 @@
 import HomeIcon from "@mui/icons-material/Home";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import React, { useContext } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserData, logout } from "../lib/auth/api";
+import { useEffect } from "react";
+import { setUser } from "../redux/slices/userSlice";
 
-const Header = () => {
-  const { isAuthed, logout } = useContext(AuthContext);
+const TopHeader = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
+
+  useEffect(() => {
+    getUserData().then((res) => {
+      if (res) {
+        dispatch(
+          setUser({
+            userId: res.id,
+            nickname: res.nickname,
+            avatar: res.avatar,
+          })
+        );
+      } else {
+        dispatch(setUser(null));
+        navigate("/login");
+        localStorage.clear();
+      }
+    });
+  }, []);
+
   const goHome = () => {
-    isAuthed ? navigate("../") : navigate("login");
+    user ? navigate("../") : navigate("/login");
   };
   const goMyPage = () => {
-    isAuthed ? navigate("mypage") : navigate("login");
+    user ? navigate("/mypage") : navigate("/login");
   };
   const logoutHandle = () => {
-    //현재 isAuthed 상태에 따라 true면 logout
     if (confirm("로그아웃 하시겠습니까?")) {
       logout();
-      navigate("login");
+      dispatch(setUser(null));
+      navigate("/login");
     }
   };
 
   return (
-    <Wrap>
-      {isAuthed && (
-        <>
+    <>
+      {user && (
+        <Wrap>
           <IconButton onClick={goHome}>
             <HomeIcon />
           </IconButton>
           <UserStateOuter>
             <UserStateWrap onClick={goMyPage}>
               <IconWrap>
-                <AccountCircleIcon
-                  sx={{ verticalAlign: "middle", color: "#b9b9b9" }}
-                />
+                {user.avatar ? (
+                  <StImg src={user.avatar} alt="유저 프로필" />
+                ) : (
+                  <AccountCircleIcon
+                    sx={{
+                      verticalAlign: "middle",
+                      fontSize: "30px",
+                      color: "#b9b9b9",
+                    }}
+                  />
+                )}
               </IconWrap>
               <p>
-                <span>someone</span> 님 환영합니다.
+                <span>{user.nickname}</span> 님 환영합니다.
               </p>
             </UserStateWrap>
             <UserStateWrap onClick={logoutHandle}>
-              <p>로그아웃</p>
+              <p>Logout</p>
             </UserStateWrap>
           </UserStateOuter>
-        </>
+        </Wrap>
       )}
-    </Wrap>
+      <Outlet />
+    </>
   );
 };
 
-export default Header;
+export default TopHeader;
 
 const Wrap = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 10px;
+`;
+
+const StImg = styled.img`
+  height: 30px;
+  object-fit: cover;
 `;
 
 const UserStateWrap = styled.div`
@@ -95,6 +131,9 @@ const IconButton = styled.button`
 `;
 
 const IconWrap = styled.div`
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
   border-radius: 9999px;
   background-color: #464646;
 `;

@@ -1,13 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import uuid from "react-uuid";
-import { useDispatch, useSelector } from "react-redux";
-import { addExpenses } from "../redux/slices/expensesSlice";
+import { useSelector } from "react-redux";
+import { postExpenses } from "../lib/expenses/expenses";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
 const AccountForm = () => {
-  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
   const month = useSelector((state) => state.month);
 
   const dateInit = `2024-${String(month).padStart(2, "0")}-01`;
@@ -16,6 +17,18 @@ const AccountForm = () => {
   const money = useRef(null);
   const category = useRef("");
   const job = useRef("");
+
+  const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: postExpenses,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["expenses"]);
+      navigate(0);
+    },
+  });
 
   useEffect(() => {
     date.current.value = dateInit;
@@ -41,14 +54,14 @@ const AccountForm = () => {
     }
 
     const newExpense = {
-      id: uuid(),
       date: date.current.value,
       money: money.current.value,
       category: category.current.value,
       job: job.current.value,
+      createdBy: user.userId,
     };
 
-    dispatch(addExpenses(newExpense));
+    mutation.mutate(newExpense);
 
     /* form 초기화 */
     date.current.value = dateInit;

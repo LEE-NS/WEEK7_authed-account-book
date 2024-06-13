@@ -2,41 +2,31 @@ import styled from "styled-components";
 import PersonIcon from "@mui/icons-material/Person";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import { useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
-import { apiUrl } from "../axios/api";
+import { useState } from "react";
+import { login } from "../lib/auth/api";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/slices/userSlice";
 
 const AccountLogin = () => {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const goRegister = () => {
-    navigate("register");
+  const goRegister = (e) => {
+    e.preventDefault();
+    navigate("/register");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await apiUrl.post("login", {
-        id,
-        password,
-      });
-      const data = response.data;
-      if (data.success) {
-        login(data.accessToken);
-        navigate("../");
-      } else {
-        alert("로그인에 실패했습니다. 다시 시도해주세요.");
-      }
-    } catch (error) {
-      console.error("Login Error :", error);
-      alert(
-        "아이디 또는 비밀번호를 잘못 입력하셨거나 해당 계정이 존재하지 않습니다."
-      );
-      console.log(password, id);
+    if (!id.trim() || !password.trim()) {
+      alert("아이디 또는 비밀번호를 잘못 입력하셨습니다. 다시 시도해보세요.");
+      return;
     }
+    const { userId, nickname, avatar } = await login({ id, password });
+    await dispatch(setUser({ userId, nickname, avatar }));
+    navigate("../");
   };
 
   return (
@@ -61,7 +51,7 @@ const AccountLogin = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </StInputWrap>
-        <StButton>로그인</StButton>
+        <StButton>Login</StButton>
         <StP>
           아직 계정이 없으신가요? <StSpan onClick={goRegister}>회원가입</StSpan>
         </StP>
@@ -73,12 +63,9 @@ const AccountLogin = () => {
 export default AccountLogin;
 
 const StLayout = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
   width: 400px;
-  height: 400px;
-  margin: -200px 0 0 -200px;
+  padding: 80px 15px;
+  margin: 0 auto;
   border-radius: 10px;
   box-shadow: 0px 1px 10px 1px #00000022;
   background-color: #fefefe;

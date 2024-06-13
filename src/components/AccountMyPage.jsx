@@ -1,47 +1,65 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiUrl } from "../axios/api";
 import { useState, useEffect } from "react";
+import { getUserData, updateUserData } from "../lib/auth/api";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../redux/slices/userSlice";
 
 const AccountMyPage = () => {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState("");
-  const [userId, setUserId] = useState("");
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  const [userNickname, setUserNickname] = useState("");
   const [userAvatar, setUserAvatar] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
 
   const goHome = (e) => {
     e.preventDefault();
     navigate("../");
   };
 
-  const getUserData = async () => {
-    const response = await apiUrl.get("user", {
-      headers: {
-        "Content-type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    setUserName(response.data.nickname);
-    setUserId(response.data.id);
-    setUserAvatar(response.data.avatar);
-    return response.data;
+  const getUserDataAtFirst = async () => {
+    const { nickname, avatar } = await getUserData();
+    setUserNickname(nickname);
+    setUserAvatar(avatar);
+    setPreviewUrl(avatar);
   };
 
-  const {
-    data: userData,
-    isPending,
-    isError,
-  } = useQuery({
-    queryKey: ["user"],
-    queryFn: getUserData,
-  });
+  useEffect(() => {
+    getUserDataAtFirst();
+  }, []);
 
-  /* if(isPending) {
-    return (
+  const handleImageChange = (e) => {
+    const fileObj = e.target.files[0];
+    setUserAvatar(fileObj);
+    const objectUrl = URL.createObjectURL(fileObj);
+    setPreviewUrl(objectUrl);
+  };
 
-    )
-  } */
+  const handleUserInfo = async (e, userNickname, userAvatar) => {
+    e.preventDefault();
+
+    if (!confirm("정보 수정을 완료하시겠습니까?")) return;
+
+    if (userNickname.trim().length < 1 || userNickname.trim().length > 10) {
+      alert("닉네임은 1 ~ 10 자리여야 합니다.");
+      return;
+    }
+
+    const data = await updateUserData({
+      userNickname,
+      userAvatar,
+    });
+
+    if (data?.message) {
+      alert(data?.message);
+    }
+
+    dispatch(setUser({ nickname: userNickname, avatar: userAvatar }));
+
+    location.reload();
+  };
 
   return (
     <StLayout>
@@ -53,30 +71,45 @@ const AccountMyPage = () => {
             <StInput
               type="text"
               placeholder="이름"
-              value={userName}
+              value={userNickname}
               onChange={(e) => {
-                setUserName(e.target.value);
-              }}
-            />
-          </StInputWrap>
-          <StInputWrap>
-            <StLabel>아이디</StLabel>
-            <StInput
-              type="text"
-              placeholder="아이디"
-              value={userId}
-              onChange={(e) => {
-                setUserId(e.target.value);
+                setUserNickname(e.target.value);
               }}
             />
           </StInputWrap>
           <StInputWrap>
             <StLabel>프로필 사진</StLabel>
-            <input type="file" />
+            <ImgAreaWrap>
+              <PreviewImg>
+                {previewUrl ? (
+                  <StImg src={previewUrl} alt="미리보기 이미지" width="100%" />
+                ) : (
+                  <AccountCircleIcon
+                    sx={{
+                      fontSize: "140px",
+                      color: "#9fc497",
+                    }}
+                  />
+                )}
+              </PreviewImg>
+              <InputButtonWrap>
+                이미지 업로드
+                <ImgInput
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+              </InputButtonWrap>
+            </ImgAreaWrap>
           </StInputWrap>
         </StInputOuterWrap>
         <StButtonWrap>
-          <StButton>수정완료</StButton>
+          <StButton
+            type="submit"
+            onClick={(e) => handleUserInfo(e, userNickname, userAvatar)}
+          >
+            수정완료
+          </StButton>
           <StButtonOutline onClick={goHome}>취소</StButtonOutline>
         </StButtonWrap>
       </StForm>
@@ -85,6 +118,53 @@ const AccountMyPage = () => {
 };
 
 export default AccountMyPage;
+
+const StImg = styled.img`
+  height: 100%;
+  object-fit: cover;
+`;
+
+const InputButtonWrap = styled.label`
+  width: 48%;
+  height: 40px;
+  padding: 3px 6px;
+  border: 1px solid #9fc497;
+  border-radius: 10px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  text-align: center;
+  line-height: 34px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  background-color: #fefefe;
+
+  &:hover {
+    background-color: #e0e0e0;
+    transition: background-color 0.2s;
+  }
+`;
+const ImgInput = styled.input`
+  display: none;
+`;
+
+const ImgAreaWrap = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+`;
+
+const PreviewImg = styled.div`
+  width: 48%;
+  height: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 9999px;
+  border: 1px solid #a8a8a8;
+`;
 
 const StLayout = styled.div`
   position: absolute;
