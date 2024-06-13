@@ -55,7 +55,7 @@ const AccountForm = () => {
 
     const newExpense = {
       date: date.current.value,
-      money: money.current.value,
+      money: +money.current.value,
       category: category.current.value,
       job: job.current.value,
       createdBy: user.userId,
