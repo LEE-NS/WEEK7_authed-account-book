@@ -58,7 +58,7 @@ const AccountMyPage = () => {
 
     dispatch(setUser({ nickname: userNickname, avatar: userAvatar }));
 
-    location.reload();
+    navigate(0);
   };
 
   return (
