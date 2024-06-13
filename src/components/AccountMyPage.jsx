@@ -58,7 +58,7 @@ const AccountMyPage = () => {
 
     dispatch(setUser({ nickname: userNickname, avatar: userAvatar }));
 
-    navigate(0);
+    navigate("../");
   };
 
   return (
