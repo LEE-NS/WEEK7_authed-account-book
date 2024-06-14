@@ -22,7 +22,7 @@ export const register = async ({ nickname, id, password }) => {
 
 export const login = async ({ id, password }) => {
   try {
-    const response = await authHost.post("/login?expiresIn=100m", {
+    const response = await authHost.post("/login?expiresIn=30m", {
       id,
       password,
     });
@@ -55,7 +55,7 @@ export const getUserData = async () => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-    return response.data;
+    return response;
   } catch (error) {
     console.log(error);
     alert(error?.response?.data?.message);
@@ -65,6 +65,12 @@ export const getUserData = async () => {
 // 회원정보
 
 export const updateUserData = async ({ userNickname, userAvatar }) => {
+  const accessToken = localStorage.getItem("accessToken");
+
+  if (!accessToken) {
+    return;
+  }
+
   try {
     const response = await authHost.patch(
       "/profile",
@@ -75,11 +81,11 @@ export const updateUserData = async ({ userNickname, userAvatar }) => {
       {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       }
     );
-    return response.data;
+    return response;
   } catch (error) {
     console.log(error);
     alert(error?.response?.data?.message);

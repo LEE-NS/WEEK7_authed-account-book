@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getUserData, updateUserData } from "../lib/auth/api";
+import { getUserData, logout, updateUserData } from "../lib/auth/api";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../redux/slices/userSlice";
@@ -9,7 +9,6 @@ import { setUser } from "../redux/slices/userSlice";
 const AccountMyPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user);
   const [userNickname, setUserNickname] = useState("");
   const [userAvatar, setUserAvatar] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -20,10 +19,14 @@ const AccountMyPage = () => {
   };
 
   const getUserDataAtFirst = async () => {
-    const { nickname, avatar } = await getUserData();
-    setUserNickname(nickname);
-    setUserAvatar(avatar);
-    setPreviewUrl(avatar);
+    const response = await getUserData();
+    if (response.response.status === 401) {
+      logout();
+      navigate("/login");
+    }
+    setUserNickname(response.response.nickname);
+    setUserAvatar(response.response.avatar);
+    setPreviewUrl(response.response.avatar);
   };
 
   useEffect(() => {
@@ -47,13 +50,14 @@ const AccountMyPage = () => {
       return;
     }
 
-    const data = await updateUserData({
+    const response = await updateUserData({
       userNickname,
       userAvatar,
     });
 
-    if (data?.message) {
-      alert(data?.message);
+    if (response?.response.status === 401) {
+      logout();
+      navigate("/login");
     }
 
     dispatch(setUser({ nickname: userNickname, avatar: userAvatar }));

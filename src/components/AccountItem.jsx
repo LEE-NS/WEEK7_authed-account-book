@@ -1,10 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { logout } from "../lib/auth/api";
 
 const AccountItem = ({ item }) => {
   const navigate = useNavigate();
   const detailNavigate = (item) => {
+    if (localStorage.getItem("accessToken")) {
+      alert("토큰이 만료되었습니다. 로그인 페이지로 이동합니다.");
+      logout();
+      navigate("/login");
+    }
     navigate(`detail/${item.id}`);
   };
 

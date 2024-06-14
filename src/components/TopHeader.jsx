@@ -23,9 +23,9 @@ const TopHeader = () => {
           })
         );
       } else {
+        localStorage.clear();
         dispatch(setUser(null));
         navigate("/login");
-        localStorage.clear();
       }
     });
   }, []);

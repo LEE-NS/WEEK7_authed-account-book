@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { postExpenses } from "../lib/expenses/expenses";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../lib/auth/api";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -36,6 +37,12 @@ const AccountForm = () => {
 
   const addItem = (e) => {
     e.preventDefault();
+
+    if (localStorage.getItem("accessToken")) {
+      alert("토큰이 만료되었습니다. 로그인 페이지로 이동합니다.");
+      logout();
+      navigate("/login");
+    }
 
     if (
       !date.current.value.trim() ||
