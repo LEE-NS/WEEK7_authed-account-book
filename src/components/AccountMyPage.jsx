@@ -20,13 +20,13 @@ const AccountMyPage = () => {
 
   const getUserDataAtFirst = async () => {
     const response = await getUserData();
-    if (response.response.status === 401) {
+    if (response?.response?.status === 401) {
       logout();
       navigate("/login");
     }
-    setUserNickname(response.response.nickname);
-    setUserAvatar(response.response.avatar);
-    setPreviewUrl(response.response.avatar);
+    setUserNickname(response.data.nickname);
+    setUserAvatar(response.data.avatar);
+    setPreviewUrl(response.data.avatar);
   };
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const AccountMyPage = () => {
       userAvatar,
     });
 
-    if (response?.response.status === 401) {
+    if (response?.response?.status === 401) {
       logout();
       navigate("/login");
     }

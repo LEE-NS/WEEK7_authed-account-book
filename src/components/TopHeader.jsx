@@ -17,9 +17,9 @@ const TopHeader = () => {
       if (res) {
         dispatch(
           setUser({
-            userId: res.id,
-            nickname: res.nickname,
-            avatar: res.avatar,
+            userId: res.data.id,
+            nickname: res.data.nickname,
+            avatar: res.data.avatar,
           })
         );
       } else {
