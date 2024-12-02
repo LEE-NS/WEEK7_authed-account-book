@@ -16,7 +16,7 @@ LEE-NS
 
 ## Referenced by
 
-json-server : [레포지토리 바로가기](https://github.com/LEE-NS/WEEK7_json-server-deploy.git)
+json-server : [리포지토리 바로가기](https://github.com/LEE-NS/WEEK7_json-server-deploy.git)
 
 ## Work from
 
